@@ -1,0 +1,31 @@
+#include <stdint.h>
+#include "nes_registers.h"
+#include "memory.h"
+
+void game_init() {
+	// Place sprite
+	oam_mirror[0] = 128; // Y
+	oam_mirror[1] = 4; // Tile
+	oam_mirror[2] = 0; // Attributes
+	oam_mirror[3] = 128; // X
+
+	// Init palettes
+	static uint8_t const palettes[] = {
+		// Background
+		0x0f,0x0f,0x0f,0x0f, 0x0f,0x0f,0x0f,0x0f, 0x0f,0x0f,0x0f,0x0f, 0x0f,0x0f,0x0f,0x0f,
+		// Sprites
+		0x0f,0x20,0x20,0x20, 0x0f,0x20,0x20,0x20, 0x0f,0x20,0x20,0x20, 0x0f,0x20,0x20,0x20,
+	};
+
+	*PPUSTATUS;
+	*PPUADDR = 0x3f;
+	*PPUADDR = 0x00;
+
+	for (uint8_t i = 0; i < sizeof(palettes); ++i) {
+		*PPUDATA = palettes[i];
+	}
+}
+
+void game_tick() {
+	++oam_mirror[3];
+}
