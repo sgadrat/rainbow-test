@@ -1,32 +1,11 @@
 #include <stdint.h>
+#include "lib/utils.h"
 #include "nes_registers.h"
 #include "memory.h"
 
 // Game functions
 void game_init();
 void game_tick();
-
-/////////////////////////////////////////////
-// Super handy utilities
-//  (Especially on 8bit hardware)
-//  (Seriously, put it in a common header)
-////////////////////////////////////////////
-
-static uint8_t u16_lsb(uint16_t val) {
-    return ((int)val) & 0x00ff;
-}
-
-static uint8_t u16_msb(uint16_t val) {
-    return (((int)val) >> 8) & 0x00ff;
-}
-
-static uint8_t ptr_lsb(uint8_t const* ptr) {
-    return u16_lsb((uint16_t)ptr);
-}
-
-static uint8_t ptr_msb(uint8_t const* ptr) {
-    return u16_msb((uint16_t)ptr);
-}
 
 ////////////////////////////////////
 // Functions mandatorily present

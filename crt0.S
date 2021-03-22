@@ -114,6 +114,56 @@ lastbit:
 	bne lastbit
 nodata:
 
+rainbow_init:
+	RAINBOW_PRG_BANKING_1 = $5002
+	RAINBOW_PRG_BANKING_2 = $5003
+	RAINBOW_PRG_BANKING_3 = $5004
+	RAINBOW_WRAM_BANKING = $5005
+	RAINBOW_CONFIGURATION = $5006
+	RAINBOW_CHR_BANKING_1 = $5400
+	RAINBOW_CHR_BANKING_2 = $5401
+	RAINBOW_CHR_BANKING_3 = $5402
+	RAINBOW_CHR_BANKING_4 = $5403
+	RAINBOW_CHR_BANKING_5 = $5404
+	RAINBOW_CHR_BANKING_6 = $5405
+	RAINBOW_CHR_BANKING_7 = $5406
+	RAINBOW_CHR_BANKING_8 = $5407
+	RAINBOW_PULSE_CHANNEL_1_CONTROL = $5800
+	RAINBOW_PULSE_CHANNEL_1_FREQ_LOW = $5801
+	RAINBOW_PULSE_CHANNEL_1_FREQ_HIGH = $5802
+	RAINBOW_PULSE_CHANNEL_2_CONTROL = $5803
+	RAINBOW_PULSE_CHANNEL_2_FREQ_LOW = $5804
+	RAINBOW_PULSE_CHANNEL_2_FREQ_HIGH = $5805
+	RAINBOW_SAW_CHANNEL_FREQ_LOW = $5c01
+	RAINBOW_SAW_CHANNEL_FREQ_HIGH = $5c02
+	RAINBOW_MAPPER_VERSION = $5c03
+	RAINBOW_IRQ_LATCH = $5c04
+	RAINBOW_IRQ_RELOAD = $5c05
+	RAINBOW_IRQ_DISABLE = $5c06
+	RAINBOW_IRQ_ENABLE = $5c07
+
+	; Configure rainbow mapper
+	lda #%00011110 ; ssmmrccp - horizontal mirroring, CHR-RAM, 8k CHR window, 16k+8k+8k PRG banking
+	sta RAINBOW_CONFIGURATION
+
+	; Select the PRG bank just before the last for the variable 8k window (emulating 16k variable + 16k fixed banking)
+	lda #%00111110 ; c.BBBBbb - PRG-ROM, befor the last bank
+	sta RAINBOW_PRG_BANKING_3
+
+	; Select the first CHR-BANK
+	lda #%00000000 ; BBBBBBBB - first bank
+	sta RAINBOW_CHR_BANKING_1
+
+	; Disable scanline IRQ
+	sta RAINBOW_IRQ_DISABLE
+
+	; Disable sound extension
+	;lda #%00000000 ; E...FFFF - disable, (don't care of frequency) ; useless - the value in A is already good
+	sta RAINBOW_PULSE_CHANNEL_1_FREQ_HIGH
+	sta RAINBOW_PULSE_CHANNEL_2_FREQ_HIGH
+	sta RAINBOW_SAW_CHANNEL_FREQ_HIGH
+
+call_program:
 	lda #0
 	sta _r0
 	sta _r1

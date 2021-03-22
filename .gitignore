@@ -1,0 +1,6 @@
+game.S
+main.S
+game.dbg
+game.map
+game.nes
+*.o
