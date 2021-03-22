@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include "lib/utils.h"
-#include "nes_registers.h"
-#include "memory.h"
+#include "lib/nes_registers.h"
+#include "lib/memory.h"
 
 // Game functions
 void game_init();

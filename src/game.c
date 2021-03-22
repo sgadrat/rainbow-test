@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include "lib/rainbow.h"
-#include "nes_registers.h"
-#include "memory.h"
+#include "lib/nes_registers.h"
+#include "lib/memory.h"
 
 static uint8_t msg[100];
 

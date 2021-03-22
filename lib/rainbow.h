@@ -121,8 +121,8 @@ typedef enum file_download_results_t {
 // Registers
 ///////////////////////////////////////////////////
 
-uint8_t volatile* const RAINBOW_DATA = (uint8_t volatile* const)0x5000;
-uint8_t volatile* const RAINBOW_FLAGS = (uint8_t volatile* const)0x5001;
+static uint8_t volatile* const RAINBOW_DATA = (uint8_t volatile* const)0x5000;
+static uint8_t volatile* const RAINBOW_FLAGS = (uint8_t volatile* const)0x5001;
 
 ///////////////////////////////////////////////////
 // Helpers
