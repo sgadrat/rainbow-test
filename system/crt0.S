@@ -143,7 +143,7 @@ rainbow_init:
 	RAINBOW_IRQ_ENABLE = $5c07
 
 	; Configure rainbow mapper
-	lda #%00011110 ; ssmmrccp - horizontal mirroring, CHR-RAM, 8k CHR window, 16k+8k+8k PRG banking
+	lda #%00010110 ; ssmmrccp - horizontal mirroring, CHR-ROM, 8k CHR window, 16k+8k+8k PRG banking
 	sta RAINBOW_CONFIGURATION
 
 	; Select the PRG bank just before the last for the variable 8k window (emulating 16k variable + 16k fixed banking)

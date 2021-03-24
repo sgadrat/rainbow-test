@@ -28,7 +28,7 @@ system/ines.o: system/ines.S
 src/main.o: src/main.S
 	$(CA) $<
 
-tiles.o: tiles.S
+tiles.o: tiles.S background.chr sprite.chr
 	$(CA) $<
 
 game.nes: system/ld65.cfg tiles.o src/main.o system/ines.o system/crt0.o src/game.o
