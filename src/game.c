@@ -3,7 +3,7 @@
 #include "lib/nes_registers.h"
 #include "lib/memory.h"
 
-static uint8_t msg[100];
+uint8_t msg[100]; //FIXME should be static, needs this to fixed https://github.com/itszor/gcc-6502-bits/issues/11
 
 static void signal_error() {
 	// Place error sprite at X = received value
@@ -14,6 +14,22 @@ static void signal_error() {
 
 	// Never return
 	while(1);
+}
+
+static void connect() {
+	// Connect with websocket to the preconfigured server
+	static uint8_t const cmd_restore_settings[] = {
+		1, TOESP_SERVER_RESTORE_SETTINGS
+	};
+	static uint8_t const cmd_set_protocol_ws[] = {
+		2, TOESP_SERVER_SET_PROTOCOL, PROTO_WEBSOCKET
+	};
+	static uint8_t const cmd_connect[] = {
+		1, TOESP_SERVER_CONNECT
+	};
+	esp_send_cmd(cmd_restore_settings);
+	esp_send_cmd(cmd_set_protocol_ws);
+	esp_send_cmd(cmd_connect);
 }
 
 void game_init() {
@@ -39,14 +55,22 @@ void game_init() {
 		*PPUDATA = palettes[i];
 	}
 
-	//TODO connect to server
+	// Ping ESP to be notified when it's ready
+	static uint8_t const cmd_get_status[] = {
+		1, TOESP_ESP_GET_STATUS
+	};
+	esp_send_cmd(cmd_get_status);
 }
 
 void game_tick() {
 	if (esp_get_msg(msg)) {
-		if (msg[0] != 2 || msg[1] != FROMESP_MESSAGE_FROM_SERVER || msg[2] != oam_mirror[3]) {
-			signal_error();
+		if (msg[0] == 1 && msg[1] == FROMESP_READY) {
+			connect();
+		}else {
+			if (msg[0] != 2 || msg[1] != FROMESP_MESSAGE_FROM_SERVER || msg[2] != oam_mirror[3]) {
+				signal_error();
+			}
+			++oam_mirror[3];
 		}
-		++oam_mirror[3];
 	}
 }
