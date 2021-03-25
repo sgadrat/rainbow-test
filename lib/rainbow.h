@@ -96,7 +96,7 @@ typedef enum fromesp_cmds_t {
 } fromesp_cmds_t;
 
 typedef enum server_protocol_t {
-	PROTO_WEBSOCKET,
+	PROTO_WEBSOCKET = 0,
 	PROTO_WEBSOCKET_SECURED,
 	PROTO_TCP,
 	PROTO_TCP_SECURED,
@@ -153,6 +153,7 @@ static void esp_send_cmd(uint8_t const* cmd) {
 	*RAINBOW_DATA = cnt;
 	do {
 		*RAINBOW_DATA = cmd[i];
+		++i;
 		--cnt;
 	}while(cnt != 0);
 }
