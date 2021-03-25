@@ -1,17 +1,18 @@
-#include <stdint.h>
+#include "src/message.h"
 #include "lib/rainbow.h"
 #include "lib/nes_registers.h"
 #include "lib/memory.h"
+#include <stdint.h>
 
-uint8_t msg[100]; //FIXME should be static, needs this to fixed https://github.com/itszor/gcc-6502-bits/issues/11
-uint8_t debug_cmd[10];
+uint8_t ready_msg[2];
+uint8_t last_msg_value;
 
 static void signal_error() {
 	// Place error sprite at X = received value
 	oam_mirror[4] = 140; // Y
 	oam_mirror[5] = 1; // Tile
 	oam_mirror[6] = 0; // Attributes
-	oam_mirror[7] = msg[2]; // X
+	oam_mirror[7] = last_msg_value; // X
 
 	// Never return
 	while(1);
@@ -22,14 +23,11 @@ static void connect() {
 	static uint8_t const cmd_restore_settings[] = {
 		1, TOESP_SERVER_RESTORE_SETTINGS
 	};
-	static uint8_t const cmd_set_protocol_ws[] = {
-		2, TOESP_SERVER_SET_PROTOCOL, PROTO_WEBSOCKET
-	};
 	static uint8_t const cmd_connect[] = {
 		1, TOESP_SERVER_CONNECT
 	};
 	esp_send_cmd(cmd_restore_settings);
-	esp_send_cmd(cmd_set_protocol_ws);
+	msg_set_protocol();
 	esp_send_cmd(cmd_connect);
 }
 
@@ -57,6 +55,7 @@ void game_init() {
 	}
 
 	// Ping ESP to be notified when it's ready
+	ready_msg[0] = 0;
 	*RAINBOW_FLAGS = 1;
 	static uint8_t const cmd_get_status[] = {
 		1, TOESP_ESP_GET_STATUS
@@ -65,26 +64,22 @@ void game_init() {
 }
 
 void game_tick() {
-	if (esp_get_msg(msg)) {
-		if (msg[0] == 1 && msg[1] == FROMESP_READY) {
+	if (ready_msg[0] == 0) {
+		if (esp_get_msg(ready_msg) && ready_msg[0] == 1 && ready_msg[1] == FROMESP_READY) {
 			connect();
 		}else {
-			debug_cmd[0] = 9;
-			debug_cmd[1] = TOESP_DEBUG_LOG;
-			debug_cmd[2] = 'r';
-			debug_cmd[3] = 'e';
-			debug_cmd[4] = 'c';
-			debug_cmd[5] = 'v';
-			debug_cmd[6] = ' ';
-			debug_cmd[7] = msg[0];
-			debug_cmd[8] = msg[1];
-			debug_cmd[9] = msg[2];
-			esp_send_cmd(debug_cmd);
-
-			if (msg[0] != 2 || msg[1] != FROMESP_MESSAGE_FROM_SERVER || msg[2] != oam_mirror[3]) {
-				signal_error();
-			}
-			++oam_mirror[3];
+			ready_msg[0] = 0;
 		}
+		return;
+	}
+
+	switch (msg_get_message()) {
+		case 0: // No message
+			break;
+		case 1: // New message, OK
+			++oam_mirror[3];
+			break;
+		case 2: // New message, incorrect
+			signal_error();
 	}
 }

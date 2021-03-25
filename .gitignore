@@ -1,6 +1,5 @@
-game.S
-main.S
-game.dbg
-game.map
-game.nes
+src/*.S
+*.dbg
+*.map
+*.nes
 *.o
