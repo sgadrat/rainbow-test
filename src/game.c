@@ -4,6 +4,7 @@
 #include "lib/memory.h"
 
 uint8_t msg[100]; //FIXME should be static, needs this to fixed https://github.com/itszor/gcc-6502-bits/issues/11
+uint8_t debug_cmd[10];
 
 static void signal_error() {
 	// Place error sprite at X = received value
@@ -56,6 +57,7 @@ void game_init() {
 	}
 
 	// Ping ESP to be notified when it's ready
+	*RAINBOW_FLAGS = 1;
 	static uint8_t const cmd_get_status[] = {
 		1, TOESP_ESP_GET_STATUS
 	};
@@ -67,6 +69,18 @@ void game_tick() {
 		if (msg[0] == 1 && msg[1] == FROMESP_READY) {
 			connect();
 		}else {
+			debug_cmd[0] = 9;
+			debug_cmd[1] = TOESP_DEBUG_LOG;
+			debug_cmd[2] = 'r';
+			debug_cmd[3] = 'e';
+			debug_cmd[4] = 'c';
+			debug_cmd[5] = 'v';
+			debug_cmd[6] = ' ';
+			debug_cmd[7] = msg[0];
+			debug_cmd[8] = msg[1];
+			debug_cmd[9] = msg[2];
+			esp_send_cmd(debug_cmd);
+
 			if (msg[0] != 2 || msg[1] != FROMESP_MESSAGE_FROM_SERVER || msg[2] != oam_mirror[3]) {
 				signal_error();
 			}
