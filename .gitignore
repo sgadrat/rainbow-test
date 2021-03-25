@@ -1,4 +1,3 @@
-src/*.S
 *.dbg
 *.map
 *.nes

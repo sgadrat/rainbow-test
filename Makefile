@@ -6,11 +6,6 @@ ROOT_DIR := .
 CFLAGS := -Os -Wall -Wextra -Werror -I $(ROOT_DIR)
 
 all: \
-	src/game.S \
-	src/main.S \
-	src/message_ws.S \
-	src/message_tcp.S \
-	src/message_udp_noloss.S \
 	src/game.o \
 	system/crt0.o \
 	system/ines.o \
@@ -25,11 +20,6 @@ all: \
 
 clean:
 	rm -f \
-		src/game.S \
-		src/main.S \
-		src/message_ws.S \
-		src/message_tcp.S \
-		src/message_udp_noloss.S \
 		src/game.o \
 		system/crt0.o \
 		system/ines.o \
@@ -48,20 +38,20 @@ clean:
 		game_udp_noloss.map \
 		game_udp_noloss.dbg
 
-src/game.S: src/game.c $(DEPS)
-	$(CC) $(CFLAGS) $< -S -o $@
-
-src/main.S: src/main.c $(DEPS)
-	$(CC) $(CFLAGS) $< -S -o $@
-
-src/message_ws.S: src/message_ws.c $(DEPS)
-	$(CC) $(CFLAGS) $< -S -o $@
-
-src/message_tcp.S: src/message_tcp.c $(DEPS)
-	$(CC) $(CFLAGS) $< -S -o $@
-
-src/message_udp_noloss.S: src/message_udp_noloss.c $(DEPS)
-	$(CC) $(CFLAGS) $< -S -o $@
+#src/game.S: src/game.c $(DEPS)
+#	$(CC) $(CFLAGS) $< -S -o $@
+#
+#src/main.S: src/main.c $(DEPS)
+#	$(CC) $(CFLAGS) $< -S -o $@
+#
+#src/message_ws.S: src/message_ws.c $(DEPS)
+#	$(CC) $(CFLAGS) $< -S -o $@
+#
+#src/message_tcp.S: src/message_tcp.c $(DEPS)
+#	$(CC) $(CFLAGS) $< -S -o $@
+#
+#src/message_udp_noloss.S: src/message_udp_noloss.c $(DEPS)
+#	$(CC) $(CFLAGS) $< -S -o $@
 
 src/game.o: src/game.S
 	$(CA) $<
@@ -98,8 +88,8 @@ game_ws.nes: system/ld65.cfg chr/tiles.o src/main.o system/ines.o system/crt0.o 
 	system/ines.o \
 	src/main.o \
 	chr/tiles.o \
-	$(GCC_SRC)/gcc-build/6502/libgcc/libgcc.a \
-	$(GCC_SRC)/libtinyc/libtinyc.a
+	gcc-lib/libgcc.a \
+	gcc-lib/libtinyc.a
 
 game_tcp.nes: system/ld65.cfg chr/tiles.o src/main.o system/ines.o system/crt0.o src/game.o src/message_tcp.o
 	$(LD) -o $@ \
@@ -112,8 +102,8 @@ game_tcp.nes: system/ld65.cfg chr/tiles.o src/main.o system/ines.o system/crt0.o
 	system/ines.o \
 	src/main.o \
 	chr/tiles.o \
-	$(GCC_SRC)/gcc-build/6502/libgcc/libgcc.a \
-	$(GCC_SRC)/libtinyc/libtinyc.a
+	gcc-lib/libgcc.a \
+	gcc-lib/libtinyc.a
 
 game_udp_noloss.nes: system/ld65.cfg chr/tiles.o src/main.o system/ines.o system/crt0.o src/game.o src/message_udp_noloss.o
 	$(LD) -o $@ \
@@ -126,5 +116,5 @@ game_udp_noloss.nes: system/ld65.cfg chr/tiles.o src/main.o system/ines.o system
 	system/ines.o \
 	src/main.o \
 	chr/tiles.o \
-	$(GCC_SRC)/gcc-build/6502/libgcc/libgcc.a \
-	$(GCC_SRC)/libtinyc/libtinyc.a
+	gcc-lib/libgcc.a \
+	gcc-lib/libtinyc.a
