@@ -1,6 +1,6 @@
 CC := 6502-gcc
-CA := /home/sylvain/workspace/nes/cc65/bin/ca65
-LD := /home/sylvain/workspace/nes/cc65/bin/ld65
+CA := ca65
+LD := ld65
 DEPS := lib/nes_registers.h lib/memory.h lib/rainbow.h lib/utils.h
 ROOT_DIR := .
 CFLAGS := -Os -Wall -Wextra -Werror -I $(ROOT_DIR)
