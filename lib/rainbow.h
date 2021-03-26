@@ -117,6 +117,17 @@ typedef enum file_download_results_t {
 	FILE_DOWN_INVALID_PATH_OR_FILE,
 } file_download_results_t;
 
+typedef enum wifi_status_t {
+	WIFI_IDLE_STATUS,
+	WIFI_NO_SSID_AVAIL,
+	WIFI_SCAN_COMPLETED,
+	WIFI_CONNECTED,
+	WIFI_CONNECT_FAILED,
+	WIFI_CONNECTION_LOST,
+	WIFI_DISCONNECTED,
+	WIFI_NO_SHIELD = 255
+} wifi_status_t;
+
 ///////////////////////////////////////////////////
 // Registers
 ///////////////////////////////////////////////////

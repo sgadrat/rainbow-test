@@ -4,8 +4,13 @@
 #include "lib/memory.h"
 #include <stdint.h>
 
-uint8_t ready_msg[2];
+uint8_t ready_msg[3];
 uint8_t last_msg_value;
+uint8_t ready_state;
+
+uint8_t const NOT_READY = 0;
+uint8_t const ESP_READY = 1;
+uint8_t const WIFI_READY = 2;
 
 static void signal_error() {
 	// Place error sprite at X = received value
@@ -55,7 +60,7 @@ void game_init() {
 	}
 
 	// Ping ESP to be notified when it's ready
-	ready_msg[0] = 0;
+	ready_state = NOT_READY;
 	*RAINBOW_FLAGS = 1;
 	static uint8_t const cmd_get_status[] = {
 		1, TOESP_ESP_GET_STATUS
@@ -64,11 +69,24 @@ void game_init() {
 }
 
 void game_tick() {
-	if (ready_msg[0] == 0) {
-		if (esp_get_msg(ready_msg) && ready_msg[0] == 1 && ready_msg[1] == FROMESP_READY) {
-			connect();
-		}else {
-			ready_msg[0] = 0;
+	if (ready_state != WIFI_READY) {
+		static uint8_t const cmd_get_wifi_status[] = {
+			1, TOESP_WIFI_GET_STATUS
+		};
+		if (esp_get_msg(ready_msg)) {
+			switch (ready_msg[1]) {
+				case FROMESP_READY:
+					connect();
+					ready_state = ESP_READY;
+					esp_send_cmd(cmd_get_wifi_status);
+					break;
+				case FROMESP_WIFI_STATUS:
+					if (ready_msg[2] == WIFI_CONNECTED) {
+						ready_state = WIFI_READY;
+					}else {
+						esp_send_cmd(cmd_get_wifi_status);
+					}
+			}
 		}
 		return;
 	}
