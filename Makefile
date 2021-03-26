@@ -43,7 +43,10 @@ clean:
 		game_ws.dbg \
 		game_tcp.nes \
 		game_tcp.map \
-		game_tcp.dbg
+		game_tcp.dbg \
+		game_udp_noloss.nes \
+		game_udp_noloss.map \
+		game_udp_noloss.dbg
 
 src/game.S: src/game.c $(DEPS)
 	$(CC) $(CFLAGS) $< -S -o $@
@@ -95,8 +98,8 @@ game_ws.nes: system/ld65.cfg chr/tiles.o src/main.o system/ines.o system/crt0.o 
 	system/ines.o \
 	src/main.o \
 	chr/tiles.o \
-	/home/sylvain/workspace/nes/n++/gcc-6502-bits/gcc-build/6502/libgcc/libgcc.a \
-	/home/sylvain/workspace/nes/n++/gcc-6502-bits/libtinyc/libtinyc.a
+	$(GCC_SRC)/gcc-build/6502/libgcc/libgcc.a \
+	$(GCC_SRC)/libtinyc/libtinyc.a
 
 game_tcp.nes: system/ld65.cfg chr/tiles.o src/main.o system/ines.o system/crt0.o src/game.o src/message_tcp.o
 	$(LD) -o $@ \
@@ -109,8 +112,8 @@ game_tcp.nes: system/ld65.cfg chr/tiles.o src/main.o system/ines.o system/crt0.o
 	system/ines.o \
 	src/main.o \
 	chr/tiles.o \
-	/home/sylvain/workspace/nes/n++/gcc-6502-bits/gcc-build/6502/libgcc/libgcc.a \
-	/home/sylvain/workspace/nes/n++/gcc-6502-bits/libtinyc/libtinyc.a
+	$(GCC_SRC)/gcc-build/6502/libgcc/libgcc.a \
+	$(GCC_SRC)/libtinyc/libtinyc.a
 
 game_udp_noloss.nes: system/ld65.cfg chr/tiles.o src/main.o system/ines.o system/crt0.o src/game.o src/message_udp_noloss.o
 	$(LD) -o $@ \
@@ -123,5 +126,5 @@ game_udp_noloss.nes: system/ld65.cfg chr/tiles.o src/main.o system/ines.o system
 	system/ines.o \
 	src/main.o \
 	chr/tiles.o \
-	/home/sylvain/workspace/nes/n++/gcc-6502-bits/gcc-build/6502/libgcc/libgcc.a \
-	/home/sylvain/workspace/nes/n++/gcc-6502-bits/libtinyc/libtinyc.a
+	$(GCC_SRC)/gcc-build/6502/libgcc/libgcc.a \
+	$(GCC_SRC)/libtinyc/libtinyc.a
