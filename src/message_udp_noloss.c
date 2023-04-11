@@ -5,13 +5,12 @@
 #include "lib/nes_registers.h"
 #include "lib/memory.h"
 
-uint8_t msg[100]; //FIXME should be static, needs this to fixed https://github.com/itszor/gcc-6502-bits/issues/11
 extern uint8_t last_msg_value;
 uint8_t hello_sent;
 
 void msg_set_protocol() {
 	static uint8_t const cmd_set_protocol[] = {
-		2, TOESP_SERVER_SET_PROTOCOL, PROTO_UDP
+		2, TOESP_MSG_SERVER_SET_PROTOCOL, ESP_PROTOCOL_UDP
 	};
 	esp_send_cmd(cmd_set_protocol);
 
@@ -22,31 +21,33 @@ void msg_set_protocol() {
 uint8_t msg_get_message() {
 	if (!hello_sent) {
 		static uint8_t const cmd_send_hello[] = {
-			6, TOESP_SERVER_SEND_MSG, 'h', 'e', 'l', 'l', 'o'
+			6, TOESP_MSG_SERVER_SEND_MESSAGE, 'h', 'e', 'l', 'l', 'o'
 		};
 		esp_send_cmd(cmd_send_hello);
 		hello_sent = 1;
 	}
 
-	if (!esp_get_msg(msg)) {
+	if (!esp_rx_message_ready()) {
 		return 0;
 	}
 
-	*RAINBOW_DATA = 9;
-	*RAINBOW_DATA = TOESP_DEBUG_LOG;
-	*RAINBOW_DATA = 'r';
-	*RAINBOW_DATA = 'e';
-	*RAINBOW_DATA = 'c';
-	*RAINBOW_DATA = 'v';
-	*RAINBOW_DATA = ' ';
-	*RAINBOW_DATA = msg[0];
-	*RAINBOW_DATA = msg[1];
-	*RAINBOW_DATA = msg[2];
+	esp_wait_tx();
+	esp_tx_buffer[0] = 9;
+	esp_tx_buffer[1] = TOESP_MSG_DEBUG_LOG;
+	esp_tx_buffer[2] = 'r';
+	esp_tx_buffer[3] = 'e';
+	esp_tx_buffer[4] = 'c';
+	esp_tx_buffer[5] = 'v';
+	esp_tx_buffer[6] = ' ';
+	esp_tx_buffer[7] = esp_rx_buffer[0];
+	esp_tx_buffer[8] = esp_rx_buffer[1];
+	esp_tx_buffer[9] = esp_rx_buffer[2];
+	esp_tx_message_send();
 
-	last_msg_value = msg[2];
-
-	if (msg[0] != 2 || msg[1] != FROMESP_MESSAGE_FROM_SERVER || msg[2] != oam_mirror[3]) {
+	if (esp_rx_buffer[0] != 2 || esp_rx_buffer[1] != FROMESP_MSG_MESSAGE_FROM_SERVER || esp_rx_buffer[2] != oam_mirror[3]) {
+		esp_rx_message_acknowledge();
 		return 2;
 	}
+	esp_rx_message_acknowledge();
 	return 1;
 }

@@ -5,6 +5,14 @@ DEPS := lib/nes_registers.h lib/memory.h lib/rainbow.h lib/utils.h
 ROOT_DIR := .
 CFLAGS := -Os -Wall -Wextra -Werror -I $(ROOT_DIR)
 
+# Attempts to set GCC_SRC
+#  where you cloned+compiled https://github.com/itszor/gcc-6502-bits
+#  (expects you are running 6502-gcc from where it was compiled)
+CC_WITCH := $(shell which $(CC))
+CC_ABS := $(shell realpath $(CC_WITCH))
+CC_DIR := $(shell dirname $(CC_ABS))
+GCC_SRC := $(CC_DIR)/../..
+
 all: \
 	src/game.S \
 	src/main.S \

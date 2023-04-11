@@ -4,7 +4,6 @@
 #include "lib/memory.h"
 #include <stdint.h>
 
-uint8_t ready_msg[3];
 uint8_t last_msg_value;
 uint8_t ready_state;
 
@@ -26,10 +25,10 @@ static void signal_error() {
 static void connect() {
 	// Connect with websocket to the preconfigured server
 	static uint8_t const cmd_restore_settings[] = {
-		1, TOESP_SERVER_RESTORE_SETTINGS
+		1, TOESP_MSG_SERVER_RESTORE_SETTINGS
 	};
 	static uint8_t const cmd_connect[] = {
-		1, TOESP_SERVER_CONNECT
+		1, TOESP_MSG_SERVER_CONNECT
 	};
 	esp_send_cmd(cmd_restore_settings);
 	msg_set_protocol();
@@ -61,33 +60,37 @@ void game_init() {
 
 	// Ping ESP to be notified when it's ready
 	ready_state = NOT_READY;
-	*RAINBOW_FLAGS = 1;
 	static uint8_t const cmd_get_status[] = {
-		1, TOESP_ESP_GET_STATUS
+		1, TOESP_MSG_GET_ESP_STATUS
 	};
 	esp_send_cmd(cmd_get_status);
 }
 
 void game_tick() {
 	if (ready_state != WIFI_READY) {
-		static uint8_t const cmd_get_wifi_status[] = {
-			1, TOESP_WIFI_GET_STATUS
+		static uint8_t const cmd_enable_wifi[] = {
+			2, TOESP_MSG_WIFI_SET_CONFIG, 1
 		};
-		if (esp_get_msg(ready_msg)) {
-			switch (ready_msg[1]) {
-				case FROMESP_READY:
-					connect();
-					ready_state = ESP_READY;
+		static uint8_t const cmd_get_wifi_status[] = {
+			1, TOESP_MSG_WIFI_GET_STATUS
+		};
+
+		esp_wait_rx();
+		switch (esp_rx_buffer[1]) {
+			case FROMESP_MSG_READY:
+				connect();
+				ready_state = ESP_READY;
+				esp_send_cmd(cmd_enable_wifi);
+				esp_send_cmd(cmd_get_wifi_status);
+				break;
+			case FROMESP_MSG_WIFI_STATUS:
+				if (esp_rx_buffer[2] == ESP_WIFI_STATUS_CONNECTED) {
+					ready_state = WIFI_READY;
+				}else {
 					esp_send_cmd(cmd_get_wifi_status);
-					break;
-				case FROMESP_WIFI_STATUS:
-					if (ready_msg[2] == WIFI_CONNECTED) {
-						ready_state = WIFI_READY;
-					}else {
-						esp_send_cmd(cmd_get_wifi_status);
-					}
-			}
+				}
 		}
+		esp_rx_message_acknowledge();
 		return;
 	}
 
